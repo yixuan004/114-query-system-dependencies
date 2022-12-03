@@ -1,0 +1,33 @@
+# 整个编排里包含了3项容器，uWSGI+Django、Redis、NGINX
+# https://blog.csdn.net/weixin_42134789/article/details/115878467
+version: "3"
+
+services:
+  uWSGI_Django:
+    image: 114_uwsgi_django:v1
+    command: uwsgi --ini ./_114django/uwsgi-docker.ini
+    volumes:
+      - /data/sdb2/lyx/mount-files-202211270941/_114config.json:/home/lyx/_114/zfx-114-query-system/_114django/_114config.json \
+      - /data/sdb2/lyx/mount-files-202211270941/Configs:/home/lyx/_114/zfx-114-query-system/_114django/Configs \
+      - /data/sdb2/lyx/mount-files-202211270941/debug-logs:/home/lyx/_114/zfx-114-query-system/_114django/debug-logs \
+      - /data/sdb2/lyx/mount-files-202211270941/logs:/home/lyx/_114/zfx-114-query-system/_114django/logs \
+      - /data/sdb2/lyx/mount-files-202211270941/wsgi_logs:/home/lyx/_114/zfx-114-query-system/_114django/wsgi_logs \
+      - /data/sdb2/lyx/mount-files-202211270941/stopwords.txt:/usr/local/lib/python3.6/site-packages/pyhanlp/static/data/dictionary/stopwords.txt \
+      - /data/sdb2/lyx/mount-files-202211270941/CustomDictionary1.txt:/usr/local/lib/python3.6/site-packages/pyhanlp/static/data/dictionary/custom/CustomDictionary1.txt \
+    ports:
+      - "5002:5002"
+    restart: always  # always代表容器运行发生错误的时候，一直重启
+  
+  Redis:
+    image: 114_redis:v1
+    command: /usr/local/bin/redis-server /home/redis1/redis.conf
+    ports:
+      - "6380:6380"
+    restart: always
+
+  NGINX:
+    image: 114_nginx:v1
+    command: nginx -g "daemon off;"
+    ports:
+      - "8082:8082"
+    restart: always
